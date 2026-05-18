@@ -1,0 +1,36 @@
+# ── Experiment Hyperparameters ────────────────────────────────────────────────
+# Single source of truth. All pipeline scripts read only this file.
+
+master_seed: 42
+n_trials: 200
+
+# Alpha grid: dense near the critical regime (< 0.35), sparse above
+alpha_values:
+  - 0.10
+  - 0.15
+  - 0.20
+  - 0.25
+  - 0.30
+  - 0.40
+  - 0.50
+  - 0.60
+  - 0.70
+  - 0.80
+
+strategies:
+  - targeted
+  - random
+
+# Termination: hard cap at max_ticks_multiplier * |V| ticks per trial
+# Runs hitting this cap are flagged RUNAWAY and excluded from phi_c analysis
+termination_max_ticks_multiplier: 5
+
+# phi_c defined as the removal fraction when E first drops below this * E_0
+efficiency_collapse_threshold: 0.5
+
+# targeted_top_k_fraction: fraction of highest-BC nodes eligible for targeted seed
+# 0.0 = strictly the single highest-BC node (deterministic, strict Motter-Lai)
+# 0.10 = top-10% sampled uniformly (produces variance across targeted trials)
+targeted_top_k_fraction: 0.0
+
+output_dir: data/raw
