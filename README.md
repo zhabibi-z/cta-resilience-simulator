@@ -7,6 +7,34 @@ redistributes onto neighbours — under both **targeted** and **random** initial
 failures — and estimates the critical removal fraction at which the system breaks
 down.
 
+> **Evolving into a decision-support tool.** The project is being extended from a topological
+> cascade demo into a real-data, multi-modal (bus + rail) resilience decision-support tool with
+> recovery dynamics, passenger-centric metrics, and hardening recommendations. **Phase 0 (below)
+> ships the real-data foundation**; the strict Motter–Lai engine is retained as the baseline.
+
+## Data foundation (real CTA open data)
+
+The network is built from **real, public** sources — no hand-coded topology — with full,
+auditable provenance ([`ingest/datasets.py`](ingest/datasets.py)):
+
+| Layer | Source |
+|-------|--------|
+| Rail topology, geo, run-times | **CTA GTFS** (`transitchicago.com` schedule feed) |
+| Rail station ridership (node weights) | Chicago Data Portal — *'L' station entries, daily totals* (`5neh-572f`) |
+| Bus ridership (next increment) | Chicago Data Portal — *bus routes, daily totals* (`jyb9-n7fm`) |
+
+Build the canonical network (downloads + caches real data, then caches the assembled graph):
+
+```bash
+python -m ingest.network
+# → 143 stations, 150 edges, connected, ~328k weekday boardings, ridership matched 143/143
+```
+
+Stations collapse to GTFS `parent_station` (the `4xxxx` map_id that station ridership is keyed
+on); edges are consecutive stations weighted by median scheduled run-time; ridership is the mean
+weekday boardings (server-side aggregated via Socrata). Downloads are cached and freshness-controlled,
+so re-runs and tests are offline. The legacy hard-coded topology remains as an automatic fallback.
+
 ## Model
 
 Strict Motter–Lai (2002):

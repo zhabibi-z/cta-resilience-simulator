@@ -10,3 +10,6 @@ figures/*.pdf
 .venv/
 venv/
 .env
+
+# Data-layer download cache (large, regenerable)
+data/cache/
