@@ -119,19 +119,18 @@ def main() -> None:
     print(f"  Output dir   : {output_dir}")
     print(f"{'─' * 45}\n")
 
-    # ── Run with progress reporting via imap_unordered ───────────────────────
+    # ── Run with progress reporting (single pass) ────────────────────────────
+    # imap yields results in task order, so index i corresponds to tasks[i]. This
+    # gives BOTH live progress AND correctly-ordered results in one pass — the
+    # previous version ran the whole grid twice (imap_unordered, discarded, then
+    # imap), doubling runtime for no benefit.
     t_start = time.perf_counter()
-    results: list[dict] = [None] * total  # type: ignore[list-item]
-    task_index = {id(t): i for i, t in enumerate(tasks)}
-
     completed = 0
     report_every = max(1, total // 20)  # report at ~5% intervals
 
-    # imap_unordered does not preserve order; collect with original index via enumeration
     ordered_results: list[dict | None] = [None] * total
-
     with multiprocessing.Pool(processes=n_workers) as pool:
-        for i, res in enumerate(pool.imap_unordered(_run_trial, tasks, chunksize=4)):
+        for i, res in enumerate(pool.imap(_run_trial, tasks, chunksize=4)):
             ordered_results[i] = res
             completed += 1
             if completed % report_every == 0 or completed == total:
@@ -144,15 +143,6 @@ def main() -> None:
                     f"elapsed {elapsed:6.1f}s  "
                     f"ETA {eta:6.1f}s"
                 )
-
-    # NOTE: imap_unordered loses task association; re-run with imap to keep order
-    # The progress loop above collected by arrival order, which is sufficient for
-    # grouping. We re-run imap (ordered) for deterministic cell grouping.
-    print("\n  Collecting ordered results...")
-    t2 = time.perf_counter()
-    with multiprocessing.Pool(processes=n_workers) as pool:
-        ordered_results = list(pool.imap(_run_trial, tasks, chunksize=4))
-    print(f"  Ordered collection complete in {time.perf_counter()-t2:.1f}s")
 
     # ── Group by (alpha, strategy) and write Parquet ─────────────────────────
     ts_groups:  defaultdict[tuple, list] = defaultdict(list)

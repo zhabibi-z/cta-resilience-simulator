@@ -64,7 +64,27 @@ Every experiment is fully determined by `experiments/config.yaml` and a master s
 (default 42), with deterministic per-trial child seeds — re-running reproduces
 identical results. `tests/test_reproducibility.py` guards this.
 
-## Reference
+## References
 
-Motter AE, Lai Y-C. *Cascade-based attacks on complex networks.* Physical Review E
-66, 065102(R) (2002).
+**Model — the overload cascade this simulator implements:**
+
+1. Motter AE, Lai Y-C. *Cascade-based attacks on complex networks.* Physical Review E
+   **66**, 065102(R) (2002). [doi:10.1103/PhysRevE.66.065102](https://doi.org/10.1103/PhysRevE.66.065102)
+   — introduces the load/capacity overload model (initial load = betweenness,
+   capacity = (1+α)·load) used here.
+
+**Foundational — targeted-vs-random attack tolerance it builds on:**
+
+2. Albert R, Jeong H, Barabási A-L. *Error and attack tolerance of complex networks.*
+   Nature **406**, 378–382 (2000). [doi:10.1038/35019019](https://doi.org/10.1038/35019019)
+   — the targeted (high-centrality) vs. random failure framing that Motter–Lai
+   extended with load dynamics.
+
+**Domain — resilience of urban rail transit networks (incl. Chicago):**
+
+3. *Topological Determinants of Resilience in Urban Rail Networks Facing Multi-Hazard
+   Disruptions.* arXiv:2407.06359 (2024). [arxiv.org/abs/2407.06359](https://arxiv.org/abs/2407.06359)
+   — percolation/attack analysis of nine urban rail networks including Chicago.
+
+The Motter–Lai model was motivated by the Internet and power grids; applying it to the
+CTA 'L' network is this project's framing.
