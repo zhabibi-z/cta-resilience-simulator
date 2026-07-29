@@ -49,8 +49,14 @@ def run_resilience_scenario(
     recovery_order: str = "ridership",
     repair_rate: int = 1,
     max_cascade_ticks: int | None = None,
+    failed_edges: Iterable[tuple[str, str]] = (),
 ) -> ResilienceResult:
-    """Run one disruption→recovery scenario and return its resilience curve + metrics."""
+    """Run one disruption→recovery scenario and return its resilience curve + metrics.
+
+    `seed` are initially-failed nodes (stations); `failed_edges` are initially-failed links
+    (track/route segments). Both are set by a hazard (see core.hazards). Capacities are still
+    fixed on the intact network per Motter-Lai; the hazard then perturbs it.
+    """
     load_model = load_model or BetweennessLoad()
     if recovery_order not in RECOVERY_ORDERS:
         raise ValueError(f"recovery_order must be one of {RECOVERY_ORDERS}")
@@ -64,10 +70,16 @@ def run_resilience_scenario(
     capacity = {n: (1.0 + alpha) * load0[n] for n in nodes}
     rid = {n: float(G.nodes[n].get("ridership", 0.0) or 0.0) for n in nodes}
 
-    def served(active_set) -> float:
-        return served_ridership_fraction(G, active_set, baseline_total)
+    # Working graph: same nodes/attrs as G, minus any initially-failed track/route edges.
+    failed_edges = [e for e in failed_edges if G.has_edge(*e)]
+    H = G.copy() if failed_edges else G
+    H.remove_edges_from(failed_edges)
 
-    q0 = served(nodes)
+    def served(active_set) -> float:
+        return served_ridership_fraction(H, active_set, baseline_total)
+
+    # Baseline is the INTACT network (before any edges/nodes fail); the hazard then perturbs it.
+    q0 = served_ridership_fraction(G, nodes, baseline_total)
     active = set(nodes) - set(seed)
     perf = [q0, served(active)]
 
@@ -76,7 +88,7 @@ def run_resilience_scenario(
     for _ in range(cap_ticks):
         if len(active) <= 2:
             break
-        load = load_model.compute(G.subgraph(active))
+        load = load_model.compute(H.subgraph(active))
         overloaded = {n for n in active if load.get(n, 0.0) > capacity[n]}
         if not overloaded:
             break

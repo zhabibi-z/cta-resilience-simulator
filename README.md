@@ -81,6 +81,32 @@ and cuts served ridership to 25% at the trough — a vulnerability the topologic
 And **restoring high-ridership stations first retains ~6% more integrated service** than arbitrary
 order: an actionable recovery-prioritisation recommendation.
 
+## Hazards & percolation (Phase 2)
+
+Resilience is stress-tested with realistic disruptions, not just single-node removal
+([`core/hazards.py`](core/hazards.py), [`core/percolation.py`](core/percolation.py)):
+
+- **Spatial (flood/storm) hazards** fail every station *and* bus cell within a radius of a
+  geographic point — a genuinely multi-modal disruption. *Flood the Loop* on the real bilayer:
+
+  | Radius | Stations hit | Cascade | Min service | Integrated `R` |
+  |---|---|:---:|:---:|:---:|
+  | 1 km | 15 rail + 2 bus | 270 / 771 | 0.19 | 0.85 |
+  | 2 km | 20 rail + 11 bus | 398 / 771 | 0.11 | 0.76 |
+  | 3 km | 29 rail + 21 bus | 385 / 771 | 0.06 | 0.75 |
+
+- **Edge/track failures** (segments, not just stations) and **targeted/random station** hazards.
+- **Percolation sweep** — remove a growing fraction and trace the robustness curve → the critical
+  fraction `φ_c`. Anchored against **null models** (Erdős–Rényi, Barabási–Albert) of the same size:
+
+  | Network | `φ_c` targeted | `φ_c` random |
+  |---|:---:|:---:|
+  | **CTA (real)** | 0.275 | 0.375 |
+  | Barabási–Albert (scale-free) | 0.125 | 0.400 |
+
+  CTA shows the classic targeted-vs-random gap, but is **far more robust to targeted attack than a
+  pure hub-and-spoke (scale-free) network** — a concrete, defensible statement about its topology.
+
 ## Two entry points
 
 - **Batch experiments** (`core/` + `experiments/`) — headless, fully reproducible
