@@ -21,19 +21,25 @@ auditable provenance ([`ingest/datasets.py`](ingest/datasets.py)):
 |-------|--------|
 | Rail topology, geo, run-times | **CTA GTFS** (`transitchicago.com` schedule feed) |
 | Rail station ridership (node weights) | Chicago Data Portal — *'L' station entries, daily totals* (`5neh-572f`) |
-| Bus ridership (next increment) | Chicago Data Portal — *bus routes, daily totals* (`jyb9-n7fm`) |
+| Bus topology (aggregated) | **CTA GTFS** — representative trip per route, snapped to a ~1 km grid |
+| Bus ridership (node weights) | Chicago Data Portal — *bus routes, daily totals* (`jyb9-n7fm`) |
 
-Build the canonical network (downloads + caches real data, then caches the assembled graph):
+Build the canonical **bus + rail bilayer** (downloads + caches real data, then caches the graph):
 
 ```bash
 python -m ingest.network
-# → 143 stations, 150 edges, connected, ~328k weekday boardings, ridership matched 143/143
+# → bilayer: 143 rail stations + 628 bus cells, 1263 edges (151 rail<->bus transfers),
+#   one connected component, ~898k weekday boardings (rail 328k + bus 569k)
 ```
 
-Stations collapse to GTFS `parent_station` (the `4xxxx` map_id that station ridership is keyed
-on); edges are consecutive stations weighted by median scheduled run-time; ridership is the mean
-weekday boardings (server-side aggregated via Socrata). Downloads are cached and freshness-controlled,
-so re-runs and tests are offline. The legacy hard-coded topology remains as an automatic fallback.
+**Rail:** stations collapse to GTFS `parent_station` (the `4xxxx` map_id ridership is keyed on);
+edges are consecutive stations weighted by median scheduled run-time. **Bus:** one representative
+trip per route defines its path, stops are snapped to a ~1 km spatial grid (a bus node ≈ a
+neighbourhood), and each route's ridership is apportioned across the cells it traverses. **Transfer
+edges** couple each rail station to nearby bus cells (walking distance, with a nearest-cell
+fallback) — so rail failures can shift demand to bus, and a spatial hazard degrades both layers at
+once. Downloads are cached/freshness-controlled (tests run offline); the legacy hard-coded topology
+remains an automatic fallback.
 
 ## Model
 
