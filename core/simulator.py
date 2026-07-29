@@ -12,12 +12,12 @@ No pygame dependency.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import List, Optional
+from dataclasses import dataclass
+
 import networkx as nx
 import numpy as np
 
-from core.metrics import global_efficiency, unnormalized_betweenness, component_stats
+from core.metrics import component_stats, global_efficiency, unnormalized_betweenness
 
 TERMINATION_QUIESCENT        = "QUIESCENT"
 TERMINATION_COLLAPSED        = "COLLAPSED"
@@ -43,7 +43,7 @@ class SimulationResult:
     strategy: str
     child_seed: int
     seed_node: str
-    timeseries: List[TickRecord]
+    timeseries: list[TickRecord]
     termination_reason: str
     phi_c: float      # removal fraction when E first drops below threshold * E_0
     total_nodes: int

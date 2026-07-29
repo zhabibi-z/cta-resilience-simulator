@@ -53,6 +53,34 @@ Strict Motter–Lai (2002):
   reaches zero. `φ_c` is the removal fraction at which global efficiency first drops
   below half of its baseline.
 
+## Resilience engine — passenger-centric + recovery (Phase 1)
+
+Beyond the strict topological baseline, the project models resilience the way the transit
+literature defines it — **service impact and recovery**, not just failure:
+
+- **Pluggable load models** ([`core/load_models.py`](core/load_models.py)) — `BetweennessLoad`
+  (strict Motter–Lai baseline) and `PassengerFlowLoad` (gravity OD demand, `ridership_i ×
+  ridership_j`, routed on travel-time shortest paths). The load model decides *what* cascades.
+- **Passenger performance metric** ([`core/performance.py`](core/performance.py)) — *served
+  ridership*: the share of the ridership base still attached to the functioning core network.
+- **Disruption → recovery scenarios** ([`core/resilience.py`](core/resilience.py)) — a hazard
+  triggers a cascade (degradation), then failed stations are restored in a chosen priority order
+  at a repair rate (recovery), tracing the **resilience triangle** `Q(t)` and an **integrated
+  resilience** score `R = mean(Q)/Q₀ ∈ [0,1]`.
+
+Real-data example — disrupt the busiest station (Lake/Subway) at α = 0.15:
+
+| Load model | Recovery order | Robustness (min service) | Integrated `R` | Cascade size |
+|---|---|:---:|:---:|:---:|
+| Betweenness (baseline) | ridership | 0.99 | 0.996 | 1 |
+| **Passenger flow** | ridership | **0.25** | **0.82** | **336 / 771** |
+| **Passenger flow** | random | 0.25 | 0.77 | 336 / 771 |
+
+Real passenger load concentrates on hubs, so a single hub failure cascades to ~44% of the network
+and cuts served ridership to 25% at the trough — a vulnerability the topological baseline misses.
+And **restoring high-ridership stations first retains ~6% more integrated service** than arbitrary
+order: an actionable recovery-prioritisation recommendation.
+
 ## Two entry points
 
 - **Batch experiments** (`core/` + `experiments/`) — headless, fully reproducible

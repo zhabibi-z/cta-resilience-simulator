@@ -7,7 +7,6 @@ GTFS loading attempted first; falls back to hardcoded topology automatically.
 
 from __future__ import annotations
 
-from typing import Optional
 import networkx as nx
 
 try:
@@ -353,7 +352,7 @@ _EDGES: list[tuple] = [
 ]
 
 
-def build_graph(gtfs_dir: Optional[str] = None) -> nx.Graph:
+def build_graph(gtfs_dir: str | None = None) -> nx.Graph:
     """Return the CTA L network graph.
 
     Attempts GTFS ingestion from gtfs_dir if supplied and pandas is available.
@@ -381,7 +380,7 @@ def _build_hardcoded() -> nx.Graph:
     return G
 
 
-def _try_load_gtfs(gtfs_dir: str) -> Optional[nx.Graph]:
+def _try_load_gtfs(gtfs_dir: str) -> nx.Graph | None:
     import os
     stops_path = os.path.join(gtfs_dir, "stops.txt")
     times_path = os.path.join(gtfs_dir, "stop_times.txt")
@@ -406,7 +405,7 @@ def _try_load_gtfs(gtfs_dir: str) -> Optional[nx.Graph]:
         times = pd.read_csv(times_path, usecols=["trip_id", "stop_id", "stop_sequence"])
         times = times[times["stop_id"].astype(str).str.match(r"^[34]\d{4}$")]
         times = times.sort_values(["trip_id", "stop_sequence"])
-        for trip_id, group in times.groupby("trip_id"):
+        for _trip_id, group in times.groupby("trip_id"):
             ids = [str(x) for x in group["stop_id"].tolist()]
             for i in range(len(ids) - 1):
                 a, b = ids[i], ids[i + 1]

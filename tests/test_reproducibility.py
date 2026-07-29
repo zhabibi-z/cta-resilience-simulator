@@ -7,8 +7,9 @@ bit-identical output across all time series metrics.
 These tests must pass before any analysis pipeline runs.
 """
 
-import pytest
 import numpy as np
+import pytest
+
 from core.graph import build_graph
 from core.simulator import MotterLaiSimulator
 from experiments.seeds import generate_trial_seeds, make_rng

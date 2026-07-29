@@ -1,7 +1,8 @@
 """Graph construction invariant tests."""
 
-import pytest
 import networkx as nx
+import pytest
+
 from core.graph import build_graph
 
 

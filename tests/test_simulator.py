@@ -5,14 +5,14 @@ All tests use a fixed child seed so failures are reproducible.
 """
 
 import pytest
-import numpy as np
+
 from core.graph import build_graph
 from core.simulator import (
-    MotterLaiSimulator,
-    TERMINATION_QUIESCENT,
     TERMINATION_COLLAPSED,
-    TERMINATION_RUNAWAY,
     TERMINATION_EFFICIENCY_ZERO,
+    TERMINATION_QUIESCENT,
+    TERMINATION_RUNAWAY,
+    MotterLaiSimulator,
 )
 from experiments.seeds import make_rng
 

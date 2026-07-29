@@ -6,7 +6,6 @@ All functions are pure: no global state, no side effects.
 
 from __future__ import annotations
 
-from typing import Tuple
 import networkx as nx
 
 
@@ -31,7 +30,7 @@ def unnormalized_betweenness(G: nx.Graph) -> dict[str, float]:
     return nx.betweenness_centrality(G, normalized=False, weight=None)
 
 
-def component_stats(G: nx.Graph) -> Tuple[int, int]:
+def component_stats(G: nx.Graph) -> tuple[int, int]:
     """Return (number_of_components, size_of_largest_component)."""
     comps = list(nx.connected_components(G))
     if not comps:
