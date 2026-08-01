@@ -118,27 +118,35 @@ sampled-betweenness path keeps the thousands of trial cascades tractable.
 > then **Clark/Lake** raises integrated resilience `R` from 0.84 → 0.87. The optimizer returns a
 > priority-ordered list and a diminishing-returns curve — a concrete *where-to-invest* recommendation.
 
-## Two entry points
+## Decision dashboard (Phase 3)
 
-- **Batch experiments** (`core/` + `experiments/`) — headless, fully reproducible
-  runs driven entirely by `experiments/config.yaml` (single source of truth: master
-  seed, `α` grid, targeted-vs-random strategy, number of trials, thresholds).
-- **Interactive visualization** (`cta_resilience_sim.py`) — a PyGame animation of the
-  network, stations coloured by CTA line, showing a cascade propagate in real time.
-  Written to be Pygbag/asyncio-compatible so it can also run in the browser.
+The interactive front end ([`dashboard/app.py`](dashboard/app.py), Streamlit + a real CTA map):
+pick a disruption (flood a region, attack the busiest hubs, random failure), tune the model, and
+see — live — the cascade on the map, the resilience triangle, and a priority-ordered list of
+stations to harden.
+
+```bash
+streamlit run dashboard/app.py
+```
+
+## Other entry points
+
+- **Batch experiments** (`experiments/`) — headless, reproducible runs driven by
+  `experiments/config.yaml`.
+- **PyGame animation** (`cta_resilience_sim.py`) — a real-time cascade animation.
 
 ## Quick start
 
 ```bash
 pip install -r requirements.txt
 
-# Reproducible batch experiment (writes results under data/raw/)
-python -m experiments.batch_runner
+# Build the real CTA bilayer (downloads + caches GTFS + ridership)
+python -m ingest.network
 
-# Interactive visualization
-python cta_resilience_sim.py
+# Interactive decision dashboard
+streamlit run dashboard/app.py
 
-# Tests: graph construction, simulator correctness, reproducibility
+# Tests
 pytest
 ```
 
