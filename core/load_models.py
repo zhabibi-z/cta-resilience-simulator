@@ -29,11 +29,22 @@ class LoadModel(Protocol):
 
 
 class BetweennessLoad:
-    """Strict Motter-Lai load: unweighted, unnormalized betweenness centrality."""
+    """Strict Motter-Lai load: unweighted, unnormalized betweenness centrality.
+
+    `k` optionally estimates betweenness from a sample of k source nodes (O(kE) instead of O(VE)) —
+    much faster, used by the hardening optimizer which runs thousands of cascades. Default k=None
+    is the exact baseline, so standard scenarios are unchanged.
+    """
 
     name = "betweenness"
 
+    def __init__(self, k: int | None = None, seed: int = 42) -> None:
+        self.k = k
+        self.seed = seed
+
     def compute(self, G: nx.Graph) -> dict[str, float]:
+        if self.k and G.number_of_nodes() > self.k:
+            return nx.betweenness_centrality(G, normalized=False, weight=None, k=self.k, seed=self.seed)
         return unnormalized_betweenness(G)
 
 

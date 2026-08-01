@@ -107,6 +107,17 @@ Resilience is stress-tested with realistic disruptions, not just single-node rem
   CTA shows the classic targeted-vs-random gap, but is **far more robust to targeted attack than a
   pure hub-and-spoke (scale-free) network** — a concrete, defensible statement about its topology.
 
+## Hardening optimization (Phase 3)
+
+The prescriptive layer ([`core/hardening.py`](core/hardening.py)): given a hazard and a protection
+budget, greedily choose which stations to **harden** (flood-proof / back up so they cannot fail)
+to most improve resilience. Candidates are restricted to stations that actually fail, and a fast
+sampled-betweenness path keeps the thousands of trial cascades tractable.
+
+> Example — attack on the three busiest hubs (O'Hare, Lake, Clark/Lake): hardening **Fullerton**
+> then **Clark/Lake** raises integrated resilience `R` from 0.84 → 0.87. The optimizer returns a
+> priority-ordered list and a diminishing-returns curve — a concrete *where-to-invest* recommendation.
+
 ## Two entry points
 
 - **Batch experiments** (`core/` + `experiments/`) — headless, fully reproducible

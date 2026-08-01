@@ -34,6 +34,7 @@ class ResilienceResult:
     robustness: float              # min Q(t) — how bad it got
     integrated_resilience: float   # R = mean(Q)/Q0 ∈ [0, 1] (area retained)
     total_failed: int              # secondary + seed failures at the trough
+    failed: list[str]              # which nodes were down at the trough
     seed: list[str]
     load_model: str
     recovery_order: str
@@ -50,19 +51,22 @@ def run_resilience_scenario(
     repair_rate: int = 1,
     max_cascade_ticks: int | None = None,
     failed_edges: Iterable[tuple[str, str]] = (),
+    protected: Iterable[str] = (),
 ) -> ResilienceResult:
     """Run one disruption→recovery scenario and return its resilience curve + metrics.
 
     `seed` are initially-failed nodes (stations); `failed_edges` are initially-failed links
-    (track/route segments). Both are set by a hazard (see core.hazards). Capacities are still
-    fixed on the intact network per Motter-Lai; the hazard then perturbs it.
+    (track/route segments). `protected` nodes are hardened — immune to failure (they survive the
+    initial hazard and never overload-out), which is what the hardening optimizer evaluates.
+    Capacities are fixed on the intact network per Motter-Lai; the hazard then perturbs it.
     """
     load_model = load_model or BetweennessLoad()
     if recovery_order not in RECOVERY_ORDERS:
         raise ValueError(f"recovery_order must be one of {RECOVERY_ORDERS}")
 
     nodes = list(G.nodes())
-    seed = [s for s in seed if s in G]
+    protected = {p for p in protected if p in G}
+    seed = [s for s in seed if s in G and s not in protected]
     baseline_total = total_ridership(G)
 
     # Fixed initial load & capacity (Motter-Lai: capacity set on the intact network).
@@ -89,7 +93,7 @@ def run_resilience_scenario(
         if len(active) <= 2:
             break
         load = load_model.compute(H.subgraph(active))
-        overloaded = {n for n in active if load.get(n, 0.0) > capacity[n]}
+        overloaded = {n for n in active if load.get(n, 0.0) > capacity[n]} - protected
         if not overloaded:
             break
         active -= overloaded
@@ -120,6 +124,7 @@ def run_resilience_scenario(
         robustness=robustness,
         integrated_resilience=integrated,
         total_failed=total_failed,
+        failed=list(failed),
         seed=list(seed),
         load_model=load_model.name,
         recovery_order=recovery_order,
