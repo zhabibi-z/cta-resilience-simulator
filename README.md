@@ -1,16 +1,17 @@
-# CTA 'L' Network Resilience Simulator
+# CTA Multi-Modal Resilience — Decision-Support Tool
 
-A cascading-failure simulator for the Chicago Transit Authority (CTA) 'L' rail
-network, implementing the **Motter–Lai (2002)** overload model. It quantifies how
-the network's efficiency collapses as stations fail and their passenger load
-redistributes onto neighbours — under both **targeted** and **random** initial
-failures — and estimates the critical removal fraction at which the system breaks
-down.
+A resilience decision-support tool for the **Chicago Transit Authority (CTA) bus + rail network**,
+built on **real open data** (GTFS + published ridership). It answers a planner's questions: *if a
+disruption hits — a flood, a hub failure, a track outage — how badly does passenger service
+degrade, how fast does it recover, and where should we invest to make it more resilient?*
 
-> **Evolving into a decision-support tool.** The project is being extended from a topological
-> cascade demo into a real-data, multi-modal (bus + rail) resilience decision-support tool with
-> recovery dynamics, passenger-centric metrics, and hardening recommendations. **Phase 0 (below)
-> ships the real-data foundation**; the strict Motter–Lai engine is retained as the baseline.
+It couples a **real bus+rail bilayer**, a **passenger-flow** cascade model, **recovery dynamics**
+(the resilience triangle), realistic **hazards** (spatial flood/storm, targeted, edge/track), a
+**percolation** sweep with random-graph baselines, a **hardening optimizer** (where to invest), and
+an **interactive dashboard** — with the strict **Motter–Lai (2002)** overload model retained as the
+scientific baseline.
+
+**Run it:** `pip install -r requirements.txt && python -m ingest.network && streamlit run dashboard/app.py`
 
 ## Data foundation (real CTA open data)
 
@@ -41,9 +42,10 @@ fallback) — so rail failures can shift demand to bus, and a spatial hazard deg
 once. Downloads are cached/freshness-controlled (tests run offline); the legacy hard-coded topology
 remains an automatic fallback.
 
-## Model
+## Baseline model
 
-Strict Motter–Lai (2002):
+The scientific baseline is strict **Motter–Lai (2002)** — kept intact and used as the reference
+against which the passenger-flow engine (below) is compared:
 
 - Initial load `L₀(i)` = unnormalized betweenness centrality on the full graph.
 - Capacity `C(i) = (1 + α)·L₀(i)`, fixed for the run (`α` = tolerance parameter).
@@ -153,16 +155,32 @@ pytest
 ## Structure
 
 ```
-core/                     # headless model (no pygame dependency)
-  graph.py                #   CTA network construction
-  simulator.py            #   strict Motter–Lai cascade engine
-  metrics.py              #   global efficiency, betweenness, components (pure functions)
-experiments/              # reproducible experiment harness
-  config.yaml             #   all hyperparameters (seed, α grid, strategies, thresholds)
-  batch_runner.py         #   runs the α × strategy × trial grid
-  seeds.py                #   deterministic per-trial seeding
-cta_resilience_sim.py     # interactive PyGame visualization
-tests/                    # graph, simulator, and reproducibility tests
+ingest/                   # DATA LAYER — real CTA network from open data
+  datasets.py             #   provenance registry (GTFS URL + Socrata dataset IDs)
+  download.py             #   cached GTFS download + paginated/aggregating Socrata client
+  gtfs.py                 #   memory-safe GTFS reader (streams the 363 MB stop_times)
+  rail.py / bus.py        #   rail layer + aggregated bus layer builders
+  ridership.py            #   real boardings -> node weights
+  transfers.py / geo.py   #   rail<->bus transfer edges; haversine/grid helpers
+  network.py              #   build_cta_network() -> the canonical bilayer (+ cache + CLI)
+
+core/                     # ENGINE (headless, no pygame)
+  load_models.py          #   LoadModel Strategy: BetweennessLoad (baseline) + PassengerFlowLoad
+  performance.py          #   served-ridership performance metric
+  resilience.py           #   disruption->recovery scenarios + the resilience triangle
+  hazards.py / geo_ref.py #   spatial (flood/storm), targeted, edge hazards; named landmarks
+  percolation.py          #   robustness sweep, phi_c, ER/BA null models
+  hardening.py            #   greedy hardening optimizer (where to invest)
+  simulator.py/metrics.py #   strict Motter–Lai baseline + pure metric functions
+  graph.py                #   legacy hard-coded topology (automatic fallback)
+
+dashboard/                # DECISION DASHBOARD
+  app.py                  #   Streamlit UI (CTA map, resilience triangle, recommendations)
+  logic.py                #   pure, UI-free logic (unit-tested)
+
+experiments/              # reproducible batch harness (config.yaml + batch_runner.py)
+cta_resilience_sim.py     # PyGame cascade animation
+tests/                    # engine, data-layer, hazards, hardening, dashboard tests (75)
 ```
 
 ## Reproducibility
@@ -173,7 +191,7 @@ identical results. `tests/test_reproducibility.py` guards this.
 
 ## References
 
-**Model — the overload cascade this simulator implements:**
+**Model — the overload cascade at the project's core:**
 
 1. Motter AE, Lai Y-C. *Cascade-based attacks on complex networks.* Physical Review E
    **66**, 065102(R) (2002). [doi:10.1103/PhysRevE.66.065102](https://doi.org/10.1103/PhysRevE.66.065102)
