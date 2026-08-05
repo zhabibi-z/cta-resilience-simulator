@@ -58,7 +58,7 @@ against which the passenger-flow engine (below) is compared:
 ## Resilience engine — passenger-centric + recovery (Phase 1)
 
 Beyond the strict topological baseline, the project models resilience the way the transit
-literature defines it — **service impact and recovery**, not just failure:
+literature defines it — **service impact and recovery**, not just failure :
 
 - **Pluggable load models** ([`core/load_models.py`](core/load_models.py)) — `BetweennessLoad`
   (strict Motter–Lai baseline) and `PassengerFlowLoad` (gravity OD demand, `ridership_i ×
