@@ -136,7 +136,7 @@ streamlit run dashboard/app.py
 - **Batch experiments** (`experiments/`) — headless, reproducible runs driven by
   `experiments/config.yaml`.
 - **PyGame animation** (`cta_resilience_sim.py`) — a real-time cascade animation
-  (optional; `pip install -r requirements-viz.txt`).
+  (optional; `pip install -r optional-viz.txt`).
 
 ## Quick start
 

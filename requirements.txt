@@ -11,4 +11,4 @@ pytest>=7.4
 
 # Optional: the legacy PyGame cascade animation (cta_resilience_sim.py) needs pygame,
 # which has no wheels on the newest Python yet. Install it separately if you want it:
-#   pip install -r requirements-viz.txt
+#   pip install -r optional-viz.txt

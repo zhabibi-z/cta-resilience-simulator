@@ -9,6 +9,14 @@ All computation is the real engine (core/) over the real bilayer (ingest/network
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Make the repo root importable no matter how this file is launched. Streamlit (locally and on
+# Community Cloud) runs `dashboard/app.py` directly, which puts only `dashboard/` on sys.path —
+# not the project root where `core/` and `ingest/` live. Insert it before those imports.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import pydeck as pdk
 import streamlit as st
 
