@@ -1,10 +1,14 @@
+# Core: data layer, resilience engine, and the Streamlit decision dashboard.
 networkx>=3.1
 numpy>=1.24
 pandas>=2.0
 pyarrow>=12.0
 pyyaml>=6.0
-pygame>=2.5
 requests>=2.31
 streamlit>=1.35
 pydeck>=0.9
 pytest>=7.4
+
+# Optional: the legacy PyGame cascade animation (cta_resilience_sim.py) needs pygame,
+# which has no wheels on the newest Python yet. Install it separately if you want it:
+#   pip install -r requirements-viz.txt
