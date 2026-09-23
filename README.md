@@ -15,7 +15,7 @@ scientific baseline.
 
 ## Data foundation (real CTA open data)
 
-The network is built from **real, public** sources — no hand-coded topology — with full,
+The network is built from **real, public** sources — no hand-coded topology —  with full,
 auditable provenance ([`ingest/datasets.py`](ingest/datasets.py)):
 
 | Layer | Source |
