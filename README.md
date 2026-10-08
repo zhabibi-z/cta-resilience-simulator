@@ -11,6 +11,8 @@ It couples a **real bus+rail bilayer**, a **passenger-flow** cascade model, **re
 an **interactive dashboard** — with the strict **Motter–Lai (2002)** overload model retained as the
 scientific baseline.
 
+**Live demo:** [cta-resilience-simulator.streamlit.app](https://cta-resilience-simulator.streamlit.app/)
+
 **Run it:** `pip install -r requirements.txt && python -m ingest.network && streamlit run dashboard/app.py`
 
 ## Data foundation (real CTA open data)
