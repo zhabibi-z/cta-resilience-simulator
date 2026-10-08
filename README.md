@@ -1,5 +1,9 @@
 # CTA Multi-Modal Resilience — Decision-Support Tool
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://cta-resilience-simulator.streamlit.app/)
+
+**▶ Try the live app: [cta-resilience-simulator.streamlit.app](https://cta-resilience-simulator.streamlit.app/)**
+
 A resilience decision-support tool for the **Chicago Transit Authority (CTA) bus + rail network**,
 built on **real open data** (GTFS + published ridership). It answers a planner's questions: *if a
 disruption hits — a flood, a hub failure, a track outage — how badly does passenger service
@@ -10,8 +14,6 @@ It couples a **real bus+rail bilayer**, a **passenger-flow** cascade model, **re
 **percolation** sweep with random-graph baselines, a **hardening optimizer** (where to invest), and
 an **interactive dashboard** — with the strict **Motter–Lai (2002)** overload model retained as the
 scientific baseline.
-
-**Live demo:** [cta-resilience-simulator.streamlit.app](https://cta-resilience-simulator.streamlit.app/)
 
 **Run it:** `pip install -r requirements.txt && python -m ingest.network && streamlit run dashboard/app.py`
 
