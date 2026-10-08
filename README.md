@@ -1,8 +1,8 @@
 # CTA Multi-Modal Resilience — Decision-Support Tool
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://cta-resilience-simulator.streamlit.app/)
+<a href="https://cta-resilience-simulator.streamlit.app/"><img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" alt="Open in Streamlit" height="48"></a>
 
-**▶ Try the live app: [cta-resilience-simulator.streamlit.app](https://cta-resilience-simulator.streamlit.app/)**
+### ▶ Try the live app: [cta-resilience-simulator.streamlit.app](https://cta-resilience-simulator.streamlit.app/)
 
 A resilience decision-support tool for the **Chicago Transit Authority (CTA) bus + rail network**,
 built on **real open data** (GTFS + published ridership). It answers a planner's questions: *if a
